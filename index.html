@@ -59,8 +59,11 @@ body{padding-top:var(--navh,65px)}
 @media (max-width:1100px){.nav-links a{padding:9px 10px;font-size:12.5px}}
 @media (max-width:980px){
   .nav .container{flex-wrap:wrap;height:auto;padding-top:12px;padding-bottom:10px;row-gap:10px}
-  .nav-links{order:3;width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-  .nav-links a{text-align:center;padding:10px 4px;font-size:13px}
+  .nav-links{order:3;width:100%;display:flex;justify-content:space-between;gap:4px}
+  .nav-links a{flex:1 1 auto;min-width:0;text-align:center;padding:10px 4px;font-size:12px;letter-spacing:-.01em}
+}
+@media (max-width:400px){
+  .nav-links a{padding:9px 2px;font-size:11px}
   .nav-links::-webkit-scrollbar{display:none}
 }
 html{scroll-behavior:smooth}
@@ -559,6 +562,7 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
     <a class="logo" href="#top">YERA<i>.</i></a>
     <nav class="nav-links" aria-label="Sections">
       <span class="nav-ind" aria-hidden="true"></span>
+      <a href="#top" data-sec="top"><span class="en">About</span><span class="ru">Обо мне</span></a>
       <a href="#experience" data-sec="experience"><span class="en">Experience</span><span class="ru">Опыт</span></a>
       <a href="#work" data-sec="work"><span class="en">Projects</span><span class="ru">Проекты</span></a>
       <a href="#skills" data-sec="skills"><span class="en">Skills</span><span class="ru">Навыки</span></a>
@@ -889,6 +893,7 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
     document.getElementById("btn-en").setAttribute("aria-pressed",String(l==="en"));
     document.getElementById("btn-ru").setAttribute("aria-pressed",String(l==="ru"));
     try{localStorage.setItem("yera-lang",l)}catch(e){}
+    if(window.__navReq)window.__navReq();
   }
   var saved=null;try{saved=localStorage.getItem("yera-lang")}catch(e){}
   if(saved==="ru"||saved==="en")setLang(saved);
@@ -903,7 +908,7 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
   var navLinks=[].slice.call(document.querySelectorAll(".nav-links a"));
   var ind=document.querySelector(".nav-ind"),bar=document.querySelector(".nav-links");
   var secs=navLinks.map(function(a){return document.getElementById(a.getAttribute("data-sec"))});
-  var cols=[[226,212,126],[220,229,251],[169,200,157],[133,170,203]];
+  var cols=[[226,212,126],[220,229,251],[133,170,203],[169,200,157],[226,212,126]];
   function lerp(a,b,t){return a+(b-a)*t}
   var ticking=false;
   function spy(){
@@ -930,6 +935,7 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
     navLinks.forEach(function(a,k){var on=k===act;a.classList.toggle("active",on);if(on)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current")});
   }
   function req(){if(!ticking){ticking=true;requestAnimationFrame(spy)}}
+  window.__navReq=req;
   window.addEventListener("scroll",req,{passive:true});window.addEventListener("resize",req);
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(req);
   spy();
