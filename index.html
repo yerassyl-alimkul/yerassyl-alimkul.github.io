@@ -49,19 +49,17 @@ body{padding-top:var(--navh,65px)}
 .logo{font:800 18px/1 var(--display);letter-spacing:-.02em;text-decoration:none}
 .logo i{font-style:normal;color:var(--accent)}
 .nav-links{display:flex;gap:2px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font:500 13px/1 var(--body)}
-.nav-links a{text-decoration:none;color:var(--text);padding:9px 16px;border-radius:999px;border:0;background:transparent;white-space:nowrap;transition:color .25s}
-.nav-links a:hover{color:var(--ink)}
-.nav-links a.active:hover{color:var(--dark)}
+.nav-links a{text-decoration:none;color:var(--text);padding:9px 16px;border-radius:999px;border:0;background:transparent;white-space:nowrap}
+
 .nav-links{position:relative;isolation:isolate}
 .nav-links a{position:relative}
-.nav-links a > span{position:relative;z-index:2;display:inline-block;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.nav-links a > span{position:relative;z-index:2;display:inline-block;transform:scale(calc(1 + .14 * var(--w,0)));transform-origin:center}
 .nav-links a::before{content:"";position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.07);transform:scale(.6);opacity:0;transition:transform .25s cubic-bezier(.3,1.6,.5,1),opacity .2s;z-index:0}
 .nav-links a:hover::before{transform:scale(1);opacity:1}
 .nav-links a.active::before{opacity:0}
-.nav-links a:hover > span{transform:scale(1.14)}
-.nav-links a:active > span{transform:scale(.96)}
+.nav-links a:active::before{transform:scale(.92)}
 .nav-ind{position:absolute;z-index:1;top:0;left:0;height:0;width:0;border-radius:999px;background:var(--c-yellow);opacity:0;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.35)}
-.nav-links a.active{color:var(--dark)}
+
 @media (max-width:1100px){.nav-links a{padding:9px 10px;font-size:12.5px}}
 @media (max-width:980px){
   .nav .container{flex-wrap:wrap;height:auto;padding-top:12px;padding-bottom:10px;row-gap:10px}
@@ -910,41 +908,48 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
   function navH(){document.documentElement.style.setProperty("--navh",nav.offsetHeight+"px")}
   navH();window.addEventListener("resize",navH);
 
-  /* nav highlight glides between buttons as the page scrolls, changing colour on the way */
+  /* nav highlight glides between buttons as the page scrolls: colour, position and text size all blend smoothly */
   var navLinks=[].slice.call(document.querySelectorAll(".nav-links a"));
   var ind=document.querySelector(".nav-ind"),bar=document.querySelector(".nav-links");
   var secs=navLinks.map(function(a){return document.getElementById(a.getAttribute("data-sec"))});
   var cols=[[226,212,126],[220,229,251],[133,170,203],[169,200,157],[226,212,126]];
+  var txtOff=[201,202,210],txtOn=[23,24,28];
   function lerp(a,b,t){return a+(b-a)*t}
-  var ticking=false;
-  function spy(){
-    ticking=false;
-    var y=window.scrollY,vh=window.innerHeight,off=(nav.offsetHeight||65)+vh*0.25;
+  function targetP(){
+    var y=window.scrollY,vh=window.innerHeight,off=(nav.offsetHeight||65)+vh*0.3;
     var tops=secs.map(function(sec){return sec.getBoundingClientRect().top+y-off});
-    var p;
-    if(y<tops[0]){p=-Math.min(1,(tops[0]-y)/(vh*0.5))}
-    else{
-      p=tops.length-1;
-      for(var i=0;i<tops.length-1;i++){if(y<tops[i+1]){p=i+(y-tops[i])/(tops[i+1]-tops[i]);break}}
-      if(y+vh>=document.documentElement.scrollHeight-4)p=tops.length-1;
-    }
-    // ease the glide so it settles on each button and moves between them quickly
-    var i0=Math.max(0,Math.min(navLinks.length-1,Math.floor(Math.max(p,0)))),i1=Math.min(navLinks.length-1,i0+1);
-    var f=Math.max(p,0)-i0;f=f<0.7?0:(f-0.7)/0.3;f=f*f*(3-2*f);
+    if(y+vh>=document.documentElement.scrollHeight-4)return tops.length-1;
+    for(var i=0;i<tops.length-1;i++){if(y<tops[i+1])return i+Math.max(0,(y-tops[i])/(tops[i+1]-tops[i]))}
+    return tops.length-1;
+  }
+  function render(P){
+    var n=navLinks.length,i0=Math.max(0,Math.min(n-1,Math.floor(P))),i1=Math.min(n-1,i0+1);
+    var f=P-i0;f=f<0.45?0:(f-0.45)/0.55;f=f*f*(3-2*f);
     var br=bar.getBoundingClientRect(),r0=navLinks[i0].getBoundingClientRect(),r1=navLinks[i1].getBoundingClientRect();
-    var x=lerp(r0.left,r1.left,f)-br.left,w=lerp(r0.width,r1.width,f),t=r0.top-br.top,h=r0.height;
-    ind.style.transform="translate("+x+"px,"+t+"px)";ind.style.width=w+"px";ind.style.height=h+"px";
+    ind.style.transform="translate("+(lerp(r0.left,r1.left,f)-br.left)+"px,"+(r0.top-br.top)+"px)";
+    ind.style.width=lerp(r0.width,r1.width,f)+"px";ind.style.height=r0.height+"px";ind.style.opacity=1;
     var c0=cols[i0%cols.length],c1=cols[i1%cols.length];
     ind.style.background="rgb("+Math.round(lerp(c0[0],c1[0],f))+","+Math.round(lerp(c0[1],c1[1],f))+","+Math.round(lerp(c0[2],c1[2],f))+")";
-    ind.style.opacity=p<0?Math.max(0,1+p*1.4):1;
-    var act=p<-0.3?-1:(f>0.5?i1:i0);
-    navLinks.forEach(function(a,k){var on=k===act;a.classList.toggle("active",on);if(on)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current")});
+    navLinks.forEach(function(a,k){
+      var wgt=k===i0?(i0===i1?1:1-f):(k===i1?f:0);
+      a.style.setProperty("--w",wgt.toFixed(3));
+      a.style.color="rgb("+Math.round(lerp(txtOff[0],txtOn[0],wgt))+","+Math.round(lerp(txtOff[1],txtOn[1],wgt))+","+Math.round(lerp(txtOff[2],txtOn[2],wgt))+")";
+      var on=wgt>0.5;a.classList.toggle("active",on);if(on)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current");
+    });
   }
-  function req(){if(!ticking){ticking=true;requestAnimationFrame(spy)}}
-  window.__navReq=req;
-  window.addEventListener("scroll",req,{passive:true});window.addEventListener("resize",req);
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(req);
-  spy();
+  var curP=targetP(),running=false;
+  function loop(){
+    var t=targetP(),d=t-curP;
+    curP+=d*0.14;
+    if(Math.abs(d)<0.001){curP=t;running=false}
+    render(curP);
+    if(running)requestAnimationFrame(loop);
+  }
+  function req(){if(!running){running=true;requestAnimationFrame(loop)}}
+  window.__navReq=function(){render(curP);req()};
+  window.addEventListener("scroll",req,{passive:true});window.addEventListener("resize",window.__navReq);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(window.__navReq);
+  render(curP);
 
   /* ===== motion ===== */
   var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
