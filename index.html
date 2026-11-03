@@ -44,7 +44,6 @@ html[data-ui="ru"] .en{display:none}
 
 /* nav */
 .nav{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top);transform:translateZ(0);transition:transform .3s ease}
-.nav.hide{transform:translateY(-100%)}
 body{padding-top:var(--navh,65px)}
 .nav .container{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
 .logo{font:800 18px/1 var(--display);letter-spacing:-.02em;text-decoration:none}
@@ -779,17 +778,10 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
   if(saved==="ru"||saved==="en")setLang(saved);
   document.querySelectorAll(".lang button").forEach(function(b){b.addEventListener("click",function(){setLang(b.getAttribute("data-set"))})});
 
-  /* fixed header: measure its height; on phones hide it while scrolling down, show on scroll up */
-  var nav=document.querySelector(".nav"),lastY=window.scrollY;
+  /* fixed header: measure its height so content starts below it */
+  var nav=document.querySelector(".nav");
   function navH(){document.documentElement.style.setProperty("--navh",nav.offsetHeight+"px")}
   navH();window.addEventListener("resize",navH);
-  window.addEventListener("scroll",function(){
-    var y=window.scrollY;
-    if(window.innerWidth<=980&&y>lastY+4&&y>140)nav.classList.add("hide");
-    else if(y<lastY-4||y<140)nav.classList.remove("hide");
-    lastY=y;
-  },{passive:true});
-  nav.addEventListener("click",function(){nav.classList.remove("hide")});
 
   /* highlight the section in view */
   var navLinks=[].slice.call(document.querySelectorAll(".nav-links a"));
