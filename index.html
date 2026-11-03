@@ -452,6 +452,13 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
 .num:hover .plan .mark{background:var(--dark)}
 .num:hover .donut{background:conic-gradient(var(--dark) 0 95%,rgba(23,24,28,.15) 95% 100%);transform:rotate(-20deg)}
 
+
+/* hero photo */
+.photo{position:relative}
+.photo img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:28px;border:1px solid var(--line);box-shadow:0 30px 60px rgba(0,0,0,.45);transition:transform .4s}
+.photo::after{content:"";position:absolute;inset:auto -14px -14px auto;width:96px;height:96px;border-radius:24px;background:var(--c-yellow);z-index:-1}
+.photo:hover img{transform:rotate(-1.5deg) translateY(-4px)}
+
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
@@ -502,10 +509,8 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
         </div>
       </div>
 
-      <figure class="photo" aria-label="Photo">
-        <div class="photo-slot">
-          <span class="en">Photo coming soon</span><span class="ru">Здесь будет фото</span>
-        </div>
+      <figure class="photo">
+        <img src="photo.jpg" alt="Yerassyl Alimkul" width="720" height="900">
       </figure>
     </div>
   </section>
