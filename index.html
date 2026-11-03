@@ -337,7 +337,8 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
 .lang-c:hover i{background:var(--dark)}
 
 .c-links{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(23,24,28,.2);border:1px solid rgba(23,24,28,.2);border-radius:20px;overflow:hidden}
-@media (max-width:760px){.c-links{grid-template-columns:1fr}}
+@media (max-width:900px){.c-links{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.c-links{grid-template-columns:1fr}}
 .c-links > *{background:var(--c-yellow);padding:22px 24px;display:flex;flex-direction:column;gap:6px;text-decoration:none;transition:background .25s,color .25s}
 .c-links span{font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#33353D}
 .c-links em{font-style:normal;font:600 18px/1.2 var(--display);letter-spacing:-.02em}
@@ -462,6 +463,33 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
 .edu-row b span{color:inherit}
 .edu-row .st{min-width:120px;text-align:right}
 .edu-row > span:not(.st) span{color:inherit}
+
+
+/* ===== motion ===== */
+.h1-ch{display:inline-block;animation:chIn .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * 45ms + 100ms)}
+@keyframes chIn{from{transform:translateY(60%) rotate(6deg);opacity:0;filter:blur(6px)}to{transform:none;opacity:1;filter:none}}
+.title,.aka,.about,.cta,.facts{animation:fadeUp .8s cubic-bezier(.2,.8,.2,1) both}
+.facts{animation-delay:.05s}.aka{animation-delay:.55s}.title{animation-delay:.65s}.about{animation-delay:.75s}.cta{animation-delay:.85s}
+.photo{animation:photoIn 1s cubic-bezier(.2,.8,.2,1) .35s both}
+@keyframes fadeUp{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+@keyframes photoIn{from{transform:translateY(30px) scale(.94) rotate(3deg);opacity:0}to{transform:none;opacity:1}}
+
+.rv{transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--d,0) * 90ms)}
+.rv.pre{opacity:0;transform:translateY(36px)}
+
+.nums .bars i{transform-origin:bottom}
+.num.pre .bars i{transform:scaleY(0)}
+.num .bars i{transition:transform .9s cubic-bezier(.2,.8,.2,1),background .3s,height .4s;transition-delay:calc(var(--k,0) * 80ms + 250ms)}
+.num.pre .plan .fill{clip-path:inset(0 100% 0 0)}
+.num .plan .fill{transition:clip-path 1.4s cubic-bezier(.2,.8,.2,1) .3s;clip-path:inset(0 0 0 0)}
+.num.pre .donut{transform:rotate(-200deg) scale(.6);opacity:0}
+.num .donut{transition:transform 1.1s cubic-bezier(.2,.8,.2,1) .3s,opacity .6s .3s}
+.num.pre .logos i{transform:scale(0)}
+.num .logos i{transition:transform .5s cubic-bezier(.3,1.6,.5,1),background .3s,color .3s,border-color .3s;transition-delay:calc(var(--k,0) * 70ms + 300ms)}
+
+.tilt{transform-style:preserve-3d;will-change:transform}
+.btn.primary,.jy-repo{will-change:transform}
+.ticker .track{will-change:transform}
 
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -762,6 +790,9 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
       <h2 id="h-contact"><span class="en">Let's<br>talk<span class="a">.</span></span><span class="ru">Давайте<br>обсудим<span class="a">.</span></span></h2>
       <a class="mail" href="mailto:alimkulyerassyl@gmail.com">alimkulyerassyl@gmail.com <span aria-hidden="true">↗</span></a>
       <div class="c-links">
+        <a href="https://t.me/yeralimkul"><span>Telegram</span><em>@yeralimkul</em></a>
+        <a href="https://wa.me/77019111414"><span>WhatsApp</span><em>+7 701 911 14 14</em></a>
+        <a href="https://www.instagram.com/yeralimkul/"><span>Instagram</span><em>@yeralimkul</em></a>
         <a href="https://www.linkedin.com/in/yerassyl-alimkul/"><span>LinkedIn</span><em>yerassyl-alimkul</em></a>
         <a href="https://github.com/yerassyl-alimkul"><span>GitHub</span><em>yerassyl-alimkul</em></a>
         <div class="loc"><span><span class="en">Based in</span><span class="ru">Где я</span></span><em><span class="en">Messina, Italy · Almaty, Kazakhstan</span><span class="ru">Мессина, Италия · Алматы, Казахстан</span></em></div>
@@ -808,6 +839,80 @@ section.block{padding:104px 0;border-bottom:1px solid var(--line)}
     });
   }
   window.addEventListener("scroll",spy,{passive:true});spy();
+
+  /* ===== motion ===== */
+  var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(!reduce){
+    // hero name: letters rise in one by one
+    document.querySelectorAll(".hero h1 > span").forEach(function(line){
+      var i=0;
+      line.childNodes.forEach(function(n){
+        if(n.nodeType===3){
+          var frag=document.createDocumentFragment();
+          n.textContent.split("").forEach(function(ch){
+            if(ch.trim()===""){frag.appendChild(document.createTextNode(ch));return}
+            var sp=document.createElement("span");sp.className="h1-ch";sp.style.setProperty("--i",i++);sp.textContent=ch;frag.appendChild(sp);
+          });
+          line.replaceChild(frag,n);
+        }
+      });
+    });
+
+    // reveal on scroll: only things below the first screen start hidden
+    var revealSel=".sec-head,.num,.job-now,.prev article,.clients,.er,.jy,.jy-feats > div,.jy-shots figure,.gh,.sk,.lang-c,.edu-row,.c-links > *";
+    var groups={};
+    var items=[].slice.call(document.querySelectorAll(revealSel));
+    items.forEach(function(el){
+      var key=el.parentElement?el.parentElement.className:"";groups[key]=(groups[key]||0);
+      el.classList.add("rv");el.style.setProperty("--d",groups[key]++%6);
+      if(el.getBoundingClientRect().top>window.innerHeight*0.92)el.classList.add("pre");
+    });
+    document.querySelectorAll(".bars i,.logos i").forEach(function(el,k){el.style.setProperty("--k",[].indexOf.call(el.parentElement.children,el))});
+
+    // numbers count up when they appear
+    function countUp(el){
+      var raw=el.getAttribute("data-final")||el.textContent;el.setAttribute("data-final",raw);
+      var m=raw.match(/^([^0-9]*)([0-9]+)(.*)$/);if(!m)return;
+      var pre=m[1],to=+m[2],post=m[3],t0=null,dur=1300;
+      function step(t){if(!t0)t0=t;var p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);el.textContent=pre+Math.round(to*e)+post;if(p<1)requestAnimationFrame(step)}
+      requestAnimationFrame(step);
+    }
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting)return;
+        var el=e.target;el.classList.remove("pre");
+        if(el.classList.contains("num"))countUp(el.querySelector(".v"));
+        if(el.classList.contains("jy"))el.querySelectorAll(".jy-stats b").forEach(function(b){if(/[0-9]/.test(b.textContent))countUp(b)});
+        io.unobserve(el);
+      });
+    },{threshold:0.15,rootMargin:"0px 0px -6% 0px"});
+    items.forEach(function(el){if(el.classList.contains("pre"))io.observe(el)});
+
+    // 3D tilt that follows the cursor (mouse only)
+    if(window.matchMedia("(hover: hover) and (pointer: fine)").matches){
+      document.querySelectorAll(".num,.lang-c,.jy-stats > div,.photo img,.prev article").forEach(function(el){
+        el.classList.add("tilt");
+        el.addEventListener("pointermove",function(e){
+          var r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+          el.style.transform="perspective(800px) rotateX("+(-y*8)+"deg) rotateY("+(x*10)+"deg) translateY(-6px)";
+        });
+        el.addEventListener("pointerleave",function(){el.style.transform=""});
+      });
+      // magnetic buttons
+      document.querySelectorAll(".btn.primary,.jy-repo,.mail").forEach(function(el){
+        el.addEventListener("pointermove",function(e){
+          var r=el.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;
+          el.style.transform="translate("+x*.25+"px,"+y*.35+"px)";
+        });
+        el.addEventListener("pointerleave",function(){el.style.transform=""});
+      });
+    }
+
+    // tickers speed up while scrolling
+    var tracks=document.querySelectorAll(".ticker .track"),boost=0,lastS=window.scrollY;
+    window.addEventListener("scroll",function(){var d=Math.abs(window.scrollY-lastS);lastS=window.scrollY;boost=Math.min(6,boost+d/40)},{passive:true});
+    (function tick(){boost*=0.92;tracks.forEach(function(t){t.getAnimations().forEach(function(a){a.playbackRate=1+boost})});requestAnimationFrame(tick)})();
+  }
 
   /* hero dot field: dots brighten and turn accent near the pointer */
   var c=document.getElementById("field"),ctx=c.getContext("2d"),dpr=Math.min(window.devicePixelRatio||1,2);
